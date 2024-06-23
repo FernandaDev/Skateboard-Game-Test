@@ -114,9 +114,6 @@ protected:
 private:
 	void HandleStamina(float DeltaSeconds);
 	void ToggleMovementBoost(bool Activate);
-
-	UFUNCTION()
-	void OnJumpMontageEnd(UAnimMontage* Montage, bool bInInterrupted);
 	
 	UFUNCTION()
 	void OnJumpAnimStart(FName NotifyName,const FBranchingPointNotifyPayload& BranchingPointPayload);

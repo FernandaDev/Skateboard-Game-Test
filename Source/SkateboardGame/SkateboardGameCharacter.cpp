@@ -230,7 +230,6 @@ void ASkateboardGameCharacter::OnJumpAnimEnd(FName NotifyName,
 		return;
 
 	const auto AnimInstance = SkeletalMeshComponent->GetAnimInstance();
-	AnimInstance->OnMontageEnded.RemoveDynamic(this, &ASkateboardGameCharacter::OnJumpMontageEnd);
 	AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &ASkateboardGameCharacter::OnJumpAnimStart);
 	AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &ASkateboardGameCharacter::OnJumpAnimEnd);
 	
