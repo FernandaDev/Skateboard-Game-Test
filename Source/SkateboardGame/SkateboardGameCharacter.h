@@ -7,7 +7,6 @@
 #include "InputActionValue.h"
 #include "SkateboardGameCharacter.generated.h"
 
-
 UCLASS(config=Game)
 class ASkateboardGameCharacter : public ACharacter
 {
@@ -41,26 +40,47 @@ class ASkateboardGameCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
-	UPROPERTY(EditAnywhere, Category="SK8 - Movement" )
+	UPROPERTY(EditAnywhere, Category = "SK8 - Movement" )
 	float DefaultWalkSpeed = 600.0f;
 
-	UPROPERTY(EditAnywhere, Category="SK8 - Movement")
+	UPROPERTY(EditAnywhere, Category = "SK8 - Movement")
 	float BoostWalkSpeed = 800.0f;
 
 	UPROPERTY()
 	bool IsBoosting = false;
 	
-	UPROPERTY(EditAnywhere, Category="SK8 - Stamina")
+	UPROPERTY(EditAnywhere, Category = "SK8 - Stamina")
 	float MaxStamina = 100.f;
 
-	UPROPERTY(VisibleAnywhere, Category= "SK8 - Stamina")
+	UPROPERTY(VisibleAnywhere, Category = "SK8 - Stamina")
 	float CurrentStamina = 0;
 
-	UPROPERTY(EditAnywhere, Category="SK8 - Stamina")
+	UPROPERTY(EditAnywhere, Category = "SK8 - Stamina")
 	float StaminaDrowningMultiplier = 10.f;
 	
-	UPROPERTY(EditAnywhere, Category="SK8 - Stamina")
+	UPROPERTY(EditAnywhere, Category = "SK8 - Stamina")
 	float StaminaRecoverMultiplier = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "SK8 - Animation")
+	TSoftObjectPtr<UAnimMontage> JumpMontage;
+
+	UPROPERTY(EditAnywhere, Category = "SK8 - Animation")
+	float JumpMontageSpeed = 1.3f;
+
+	UPROPERTY()
+	USkeletalMeshComponent* SkeletalMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UStaticMeshComponent* SkateMeshComponent;
+
+	UPROPERTY()
+	FName SkateSocketName = "SkateSocket";
+	
+	UPROPERTY()
+	FString JumpNotifyName = "Jump";
+
+	UPROPERTY()
+	FTransform DefaultSkateTransform{};
 	
 public:
 	ASkateboardGameCharacter();
@@ -80,7 +100,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+
+	void PlayJumpAnimation();			
 
 protected:
 	// APawn interface
@@ -93,5 +114,13 @@ protected:
 private:
 	void HandleStamina(float DeltaSeconds);
 	void ToggleMovementBoost(bool Activate);
+
+	UFUNCTION()
+	void OnJumpMontageEnd(UAnimMontage* Montage, bool bInInterrupted);
+	
+	UFUNCTION()
+	void OnJumpAnimStart(FName NotifyName,const FBranchingPointNotifyPayload& BranchingPointPayload);
+	UFUNCTION()
+	void OnJumpAnimEnd(FName NotifyName,const FBranchingPointNotifyPayload& BranchingPointPayload);	
 };
 
