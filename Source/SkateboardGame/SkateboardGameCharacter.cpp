@@ -64,6 +64,47 @@ void ASkateboardGameCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	CurrentStamina = MaxStamina;
+}
+
+void ASkateboardGameCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	HandleStamina(DeltaSeconds);
+}
+
+void ASkateboardGameCharacter::HandleStamina(float DeltaSeconds)
+{
+	if(GetCharacterMovement()->Velocity != FVector::Zero() &&
+		IsBoosting)
+	{
+		if(CurrentStamina > 0.1f)
+			CurrentStamina -= StaminaDrowningMultiplier * DeltaSeconds;
+		else
+			ToggleMovementBoost(false);
+	}
+	else
+	{
+		if(CurrentStamina < MaxStamina)
+		{
+			const auto staminaRecovery = StaminaRecoverMultiplier * DeltaSeconds;
+			CurrentStamina = FMath::Clamp(CurrentStamina + staminaRecovery, CurrentStamina, MaxStamina);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Stamina: %f"), CurrentStamina);
+}
+
+void ASkateboardGameCharacter::ToggleMovementBoost(bool Activate)
+{
+	if(Activate)
+		GetCharacterMovement()->MaxWalkSpeed = BoostWalkSpeed;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+
+	IsBoosting = Activate;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -81,9 +122,12 @@ void ASkateboardGameCharacter::SetupPlayerInputComponent(class UInputComponent* 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateboardGameCharacter::Move);
 
+		//Boost
+		EnhancedInputComponent->BindAction(ForwardBoostAction, ETriggerEvent::Started, this, &ASkateboardGameCharacter::ForwardBoostStart);
+		EnhancedInputComponent->BindAction(ForwardBoostAction, ETriggerEvent::Completed, this, &ASkateboardGameCharacter::ForwardBoostEnd);
+		
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASkateboardGameCharacter::Look);
-
 	}
 
 }
@@ -109,6 +153,21 @@ void ASkateboardGameCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+}
+
+void ASkateboardGameCharacter::ForwardBoostStart(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Boost start!"));
+
+	ToggleMovementBoost(true);
+}
+
+void ASkateboardGameCharacter::ForwardBoostEnd(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Boost end!"));
+
+	ToggleMovementBoost(false);
+	
 }
 
 void ASkateboardGameCharacter::Look(const FInputActionValue& Value)
