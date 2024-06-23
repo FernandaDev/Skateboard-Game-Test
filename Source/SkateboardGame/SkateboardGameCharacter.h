@@ -7,6 +7,8 @@
 #include "InputActionValue.h"
 #include "SkateboardGameCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoredDelegate, int, score);
+
 UCLASS(config=Game)
 class ASkateboardGameCharacter : public ACharacter
 {
@@ -49,10 +51,10 @@ class ASkateboardGameCharacter : public ACharacter
 	UPROPERTY()
 	bool IsBoosting = false;
 	
-	UPROPERTY(EditAnywhere, Category = "SK8 - Stamina")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK8 - Stamina", meta = (AllowPrivateAccess = "true"))
 	float MaxStamina = 100.f;
 
-	UPROPERTY(VisibleAnywhere, Category = "SK8 - Stamina")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK8 - Stamina", meta = (AllowPrivateAccess = "true"))
 	float CurrentStamina = 0;
 
 	UPROPERTY(EditAnywhere, Category = "SK8 - Stamina")
@@ -81,6 +83,12 @@ class ASkateboardGameCharacter : public ACharacter
 
 	UPROPERTY()
 	FTransform DefaultSkateTransform{};
+
+	UPROPERTY(VisibleAnywhere)
+	int CurrentScore = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, meta=(AllowPrivateAccess="true"))
+	FOnScoredDelegate OnScoredDelegate;
 	
 public:
 	ASkateboardGameCharacter();
@@ -90,6 +98,8 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	void OnScored();
+	
 protected:
 
 	/** Called for movement input */

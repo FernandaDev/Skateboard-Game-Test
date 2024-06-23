@@ -100,7 +100,7 @@ void ASkateboardGameCharacter::HandleStamina(float DeltaSeconds)
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Stamina: %f"), CurrentStamina);
+	//UE_LOG(LogTemp, Log, TEXT("Stamina: %f"), CurrentStamina);
 }
 
 void ASkateboardGameCharacter::ToggleMovementBoost(bool Activate)
@@ -137,6 +137,12 @@ void ASkateboardGameCharacter::SetupPlayerInputComponent(class UInputComponent* 
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASkateboardGameCharacter::Look);
 	}
 
+}
+
+void ASkateboardGameCharacter::OnScored()
+{
+	CurrentScore++;
+	OnScoredDelegate.Broadcast(CurrentScore);
 }
 
 void ASkateboardGameCharacter::Move(const FInputActionValue& Value)
@@ -201,7 +207,6 @@ void ASkateboardGameCharacter::PlayJumpAnimation()
 	if(AnimInstance->Montage_IsPlaying(Montage))
 		return;
 	
-	UE_LOG(LogTemp, Warning, TEXT("ASkateboardGameCharacter::Jump"));
 	AnimInstance->OnPlayMontageNotifyBegin.AddUniqueDynamic(this, &ASkateboardGameCharacter::OnJumpAnimStart);
 	AnimInstance->OnPlayMontageNotifyEnd.AddUniqueDynamic(this, &ASkateboardGameCharacter::OnJumpAnimEnd);
 	AnimInstance->Montage_Play(Montage,JumpMontageSpeed);
@@ -210,7 +215,6 @@ void ASkateboardGameCharacter::PlayJumpAnimation()
 void ASkateboardGameCharacter::OnJumpAnimStart(FName NotifyName,
 	const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASkateboardGameCharacter::OnJumpAnimStart"));
 	if(NotifyName.ToString() != JumpNotifyName)
 		return;
 
@@ -225,7 +229,6 @@ void ASkateboardGameCharacter::OnJumpAnimStart(FName NotifyName,
 void ASkateboardGameCharacter::OnJumpAnimEnd(FName NotifyName,
 	const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASkateboardGameCharacter::OnJumpAnimEnd"));
 	if(NotifyName.ToString() != JumpNotifyName)
 		return;
 
